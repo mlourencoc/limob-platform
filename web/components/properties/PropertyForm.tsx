@@ -238,18 +238,18 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
 
         <Separator />
 
-        {/* Status */}
-        <Section title="Status">
+        {/* Dados do Imóvel */}
+        <Section title="Dados do Imóvel">
           <div className="grid grid-cols-2 gap-4">
-            <SelectField control={form.control} name="commercial_status" label="Status comercial"
+            <SelectField control={form.control} name="commercial_status" label="Status Comercial"
               options={COMMERCIAL_STATUSES.map((s) => ({ value: s, label: COMMERCIAL_STATUS_LABELS[s] }))} />
-            <SelectField control={form.control} name="state" label="Estado"
+            <SelectField control={form.control} name="state" label="Estado do Imóvel"
               options={PROPERTY_STATES.map((s) => ({ value: s, label: PROPERTY_STATE_LABELS[s] }))} />
-            <SelectField control={form.control} name="situation" label="Situação"
+            <SelectField control={form.control} name="situation" label="Situação do Imóvel"
               options={PROPERTY_SITUATIONS.map((s) => ({ value: s, label: PROPERTY_SITUATION_LABELS[s] }))} />
-            <SelectField control={form.control} name="delivery_status" label="Status de entrega"
+            <SelectField control={form.control} name="delivery_status" label="Status de Entrega"
               options={DELIVERY_STATUSES.map((s) => ({ value: s, label: DELIVERY_STATUS_LABELS[s] }))} />
-            <NumberField control={form.control} name="delivery_year" label="Ano de entrega" />
+            <NumberField control={form.control} name="delivery_year" label="Ano de Entrega" />
           </div>
         </Section>
 

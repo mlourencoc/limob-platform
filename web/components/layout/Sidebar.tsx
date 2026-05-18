@@ -9,6 +9,7 @@ import {
   Users,
   Landmark,
   HardHat,
+  Settings2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -37,6 +38,14 @@ const NAV_ITEMS = [
     href: '/builders',
     label: 'Construtoras',
     icon: HardHat,
+  },
+] as const
+
+const BOTTOM_ITEMS = [
+  {
+    href: '/settings',
+    label: 'Configurações',
+    icon: Settings2,
   },
 ] as const
 
@@ -72,9 +81,27 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Rodapé */}
-      <div className="p-3 border-t">
-        <p className="text-xs text-muted-foreground">MVP v0.1</p>
+      {/* Configurações (rodapé) */}
+      <div className="p-2 border-t space-y-0.5">
+        {BOTTOM_ITEMS.map(({ href, label, icon: Icon }) => {
+          const isActive = pathname.startsWith(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors',
+                isActive
+                  ? 'bg-primary text-primary-foreground font-medium'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <Icon size={16} />
+              {label}
+            </Link>
+          )
+        })}
+        <p className="text-xs text-muted-foreground px-3 pt-1">MVP v0.1</p>
       </div>
     </aside>
   )

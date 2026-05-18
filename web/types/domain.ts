@@ -312,7 +312,47 @@ export interface PaginatedResult<T> {
 }
 
 // ============================================================
-// IMPORT COLUMN MAPPING �?" wizard de importação
+// CONFIG — Grupos, Subgrupos e Campos configuráveis
+// ============================================================
+
+export interface ConfigGroup {
+  id: string
+  name: string
+  slug: string
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ConfigSubgroup {
+  id: string
+  group_id: string
+  name: string
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ConfigField {
+  id: string
+  subgroup_id: string
+  name: string
+  field_key: string | null
+  options: string[]
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export type ConfigGroupInsert = Omit<ConfigGroup, 'id' | 'created_at' | 'updated_at'>
+export type ConfigGroupUpdate = Partial<ConfigGroupInsert>
+export type ConfigSubgroupInsert = Omit<ConfigSubgroup, 'id' | 'created_at' | 'updated_at'>
+export type ConfigSubgroupUpdate = Partial<ConfigSubgroupInsert>
+export type ConfigFieldInsert = Omit<ConfigField, 'id' | 'created_at' | 'updated_at'>
+export type ConfigFieldUpdate = Partial<ConfigFieldInsert>
+
+// ============================================================
+// IMPORT COLUMN MAPPING — wizard de importação
 // ============================================================
 
 export type ImportableField = keyof PropertyInsert | 'broker_name' | 'development_name';
