@@ -108,9 +108,9 @@ export function FilterPanel({ options, initialFilters, onChange }: FilterPanelPr
       {/* Tipo */}
       <FilterGroup label="Tipo">
         <MultiSelect
-          options={PROPERTY_TYPES.map((t) => ({ value: t, label: PROPERTY_TYPE_LABELS[t] }))}
+          options={PROPERTY_TYPES.map((t) => ({ value: t, label: PROPERTY_TYPE_LABELS[t] ?? t }))}
           value={filters.types ?? []}
-          onChange={(v) => update({ types: v as PropertyFilters['types'] })}
+          onChange={(v) => update({ types: v })}
           placeholder="Todos os tipos"
         />
       </FilterGroup>
@@ -171,7 +171,7 @@ export function FilterPanel({ options, initialFilters, onChange }: FilterPanelPr
         <MultiSelect
           options={PROPERTY_STATES.map((s) => ({ value: s, label: PROPERTY_STATE_LABELS[s] }))}
           value={filters.states ?? []}
-          onChange={(v) => update({ states: v as PropertyFilters['states'] })}
+          onChange={(v) => update({ states: v })}
           placeholder="Todos"
         />
       </FilterGroup>
@@ -180,7 +180,7 @@ export function FilterPanel({ options, initialFilters, onChange }: FilterPanelPr
         <MultiSelect
           options={PROPERTY_SITUATIONS.map((s) => ({ value: s, label: PROPERTY_SITUATION_LABELS[s] }))}
           value={filters.situations ?? []}
-          onChange={(v) => update({ situations: v as PropertyFilters['situations'] })}
+          onChange={(v) => update({ situations: v })}
           placeholder="Todas"
         />
       </FilterGroup>

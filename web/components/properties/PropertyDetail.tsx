@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import {
-  PROPERTY_TYPE_LABELS,
+  getPropertyTypeLabel,
   PROPERTY_SUBTYPE_LABELS,
   PROPERTY_STATE_LABELS,
   PROPERTY_SITUATION_LABELS,
@@ -37,9 +37,9 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
 
       {/* Badges principais */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">{PROPERTY_TYPE_LABELS[property.type]}</Badge>
+        <Badge variant="outline">{getPropertyTypeLabel(property.type)}</Badge>
         {property.subtype && (
-          <Badge variant="outline">{PROPERTY_SUBTYPE_LABELS[property.subtype]}</Badge>
+          <Badge variant="outline">{PROPERTY_SUBTYPE_LABELS[property.subtype] ?? property.subtype}</Badge>
         )}
         <Badge className={cn(COMMERCIAL_STATUS_COLORS[property.commercial_status])}>
           {COMMERCIAL_STATUS_LABELS[property.commercial_status]}

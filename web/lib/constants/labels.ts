@@ -1,10 +1,8 @@
 // lib/constants/labels.ts
 // Labels legíveis para exibição dos enums do domínio.
-// �snica fonte de verdade para tradução enum �?' texto PT-BR.
+// Única fonte de verdade para tradução enum → texto PT-BR.
 
 import type {
-  PropertyType,
-  PropertySubtype,
   PropertyState,
   PropertySituation,
   CommercialStatus,
@@ -12,16 +10,20 @@ import type {
   LinkType,
 } from '@/types/domain';
 
-export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
+// Legado + novos valores (Record<string, string> para suportar ambos)
+export const PROPERTY_TYPE_LABELS: Record<string, string> = {
+  // Valores legado
   apartamento: 'Apartamento',
   casa: 'Casa',
   terreno: 'Terreno',
   comercial: 'Comercial',
   rural: 'Rural',
   outro: 'Outro',
+  // Novos valores v2 mapeiam para si mesmos (label = valor)
 };
 
-export const PROPERTY_SUBTYPE_LABELS: Record<PropertySubtype, string> = {
+export const PROPERTY_SUBTYPE_LABELS: Record<string, string> = {
+  // Valores legado
   padrao: 'Padrão',
   cobertura: 'Cobertura',
   duplex: 'Duplex',
@@ -33,6 +35,11 @@ export const PROPERTY_SUBTYPE_LABELS: Record<PropertySubtype, string> = {
   condominio_fechado: 'Condomínio Fechado',
   outro: 'Outro',
 };
+
+// Helper: retorna label ou o próprio valor (para novos tipos livres)
+export function getPropertyTypeLabel(type: string): string {
+  return PROPERTY_TYPE_LABELS[type] ?? type;
+}
 
 export const PROPERTY_STATE_LABELS: Record<PropertyState, string> = {
   novo: 'Novo',
@@ -69,7 +76,7 @@ export const LINK_TYPE_LABELS: Record<LinkType, string> = {
 };
 
 // ============================================================
-// BADGE COLORS �?" para uso com Tailwind + ShadCN Badge
+// BADGE COLORS — para uso com Tailwind + ShadCN Badge
 // ============================================================
 
 export const COMMERCIAL_STATUS_COLORS: Record<CommercialStatus, string> = {
@@ -91,7 +98,7 @@ export const DELIVERY_STATUS_COLORS: Record<DeliveryStatus, string> = {
 // ============================================================
 
 export function formatCurrency(value: number | null | undefined): string {
-  if (value == null) return '�?"';
+  if (value == null) return '—';
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -100,19 +107,19 @@ export function formatCurrency(value: number | null | undefined): string {
 }
 
 export function formatArea(value: number | null | undefined): string {
-  if (value == null) return '�?"';
+  if (value == null) return '—';
   return `${value.toLocaleString('pt-BR')} m²`;
 }
 
 export function formatPropertyAge(years: number | null | undefined): string {
-  if (years == null) return '�?"';
+  if (years == null) return '—';
   if (years === 0) return 'Entregue este ano';
   if (years < 0) return `Entrega em ${Math.abs(years)} ano${Math.abs(years) > 1 ? 's' : ''}`;
   return `${years} ano${years > 1 ? 's' : ''}`;
 }
 
 export function formatRooms(bedrooms: number | null, suites: number | null): string {
-  if (bedrooms == null) return '�?"';
+  if (bedrooms == null) return '—';
   const base = `${bedrooms} qto${bedrooms > 1 ? 's' : ''}`;
   if (suites) return `${base} (${suites} suíte${suites > 1 ? 's' : ''})`;
   return base;

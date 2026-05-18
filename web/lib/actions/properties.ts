@@ -110,6 +110,36 @@ export async function updateProperty(
 }
 
 // ============================================================
+// DESENVOLVIMENTO — dados para auto-popular localização
+// ============================================================
+
+export async function getDevelopmentLocationAction(developmentId: string): Promise<{
+  city: string | null
+  neighborhood: string | null
+  address: string | null
+  builder: string | null
+} | null> {
+  try {
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('developments')
+      .select('city, neighborhood, address, builder')
+      .eq('id', developmentId)
+      .single()
+    if (error || !data) return null
+    return {
+      city: (data as any).city ?? null,
+      neighborhood: (data as any).neighborhood ?? null,
+      address: (data as any).address ?? null,
+      builder: (data as any).builder ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
+// ============================================================
 // SOFT DELETE
 // ============================================================
 

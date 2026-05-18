@@ -5,7 +5,7 @@ import { MapPin, BedDouble, Car, Ruler, AlertTriangle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
-  PROPERTY_TYPE_LABELS,
+  getPropertyTypeLabel,
   COMMERCIAL_STATUS_LABELS,
   COMMERCIAL_STATUS_COLORS,
   formatCurrency,
@@ -74,7 +74,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           {/* Atributos */}
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="bg-muted px-1.5 py-0.5 rounded text-[11px]">
-              {PROPERTY_TYPE_LABELS[type]}
+              {getPropertyTypeLabel(type)}
             </span>
             {area_m2 && (
               <span className="flex items-center gap-0.5">

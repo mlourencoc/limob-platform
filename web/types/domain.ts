@@ -154,9 +154,11 @@ export type PropertyLinkInsert = Omit<PropertyLink, 'id' | 'created_at'>;
 // ============================================================
 
 export interface Property extends BaseEntity {
-  // Classificação
-  type: PropertyType;
-  subtype: PropertySubtype | null;
+  // Classificação nova (cascata)
+  objetivo: string | null;       // 'Venda' | 'Aluguel'
+  categoria: string | null;      // 'Residencial' | 'Comercial' | 'Rural' | 'Outros'
+  type: string;                  // Tipo (Apartamento, Casa de Rua, etc.) - mantém compatibilidade
+  subtype: string | null;        // Subtipo (Studio, Loft, etc.)
 
   // Localização
   city: string;
@@ -170,6 +172,12 @@ export interface Property extends BaseEntity {
   // Unidade
   unit: string | null;
   builder: string | null;
+
+  // Dados da Unidade (novos)
+  unit_number: string | null;    // Número da unidade (ex: 501)
+  floor_number: string | null;   // Andar
+  unit_final: string | null;     // Final (A, B, C...)
+  sun_position: string | null;   // 'leste' | 'oeste' | 'norte' | 'sul'
 
   // Dimensões
   area_m2: number | null;
@@ -262,17 +270,19 @@ export type ImportUpdate = Partial<ImportInsert>;
 
 export interface PropertyFilters {
   // Multiselect
+  objetivos?: string[];
+  categorias?: string[];
   cities?: string[];
   neighborhoods?: string[];
   development_ids?: string[];
   broker_ids?: string[];
-  types?: PropertyType[];
-  subtypes?: PropertySubtype[];
+  types?: string[];
+  subtypes?: string[];
   bedrooms?: number[];
   suites?: number[];
   parking_spots?: number[];
-  states?: PropertyState[];
-  situations?: PropertySituation[];
+  states?: string[];
+  situations?: string[];
   commercial_statuses?: CommercialStatus[];
   delivery_statuses?: DeliveryStatus[];
   delivery_years?: number[];

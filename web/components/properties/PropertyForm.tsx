@@ -28,26 +28,20 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { propertySchema, type PropertyFormValues } from '@/lib/schemas/property.schema'
 import { createProperty, updateProperty } from '@/lib/actions/properties'
+import { COMMERCIAL_STATUS_LABELS, DELIVERY_STATUS_LABELS } from '@/lib/constants/labels'
+import { COMMERCIAL_STATUSES, DELIVERY_STATUSES } from '@/types/domain'
 import {
-  PROPERTY_TYPE_LABELS,
-  PROPERTY_SUBTYPE_LABELS,
-  PROPERTY_STATE_LABELS,
-  PROPERTY_SITUATION_LABELS,
-  COMMERCIAL_STATUS_LABELS,
-  DELIVERY_STATUS_LABELS,
-} from '@/lib/constants/labels'
-import {
-  PROPERTY_TYPES,
-  PROPERTY_SUBTYPES,
-  PROPERTY_STATES,
-  PROPERTY_SITUATIONS,
-  COMMERCIAL_STATUSES,
-  DELIVERY_STATUSES,
-} from '@/types/domain'
+  typeRequiresDevelopment,
+  typeHasComposition,
+  typeHasCondoFee,
+  typeHasUnitData,
+} from '@/lib/constants/classifications'
+import { ClassificationCascade } from './ClassificationCascade'
+import { DevelopmentSection } from './DevelopmentSection'
 import type { PropertyWithLinks } from '@/types/domain'
 
 interface PropertyFormProps {
-  property?: PropertyWithLinks        // se passado = modo edição
+  property?: PropertyWithLinks
   brokers: Array<{ id: string; name: string }>
   developments: Array<{ id: string; name: string }>
 }
@@ -62,15 +56,21 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
     resolver: zodResolver(propertySchema) as any,
     defaultValues: property
       ? {
-          type: property.type,
-          subtype: property.subtype ?? undefined,
-          city: property.city,
+          objetivo: (property as any).objetivo ?? '',
+          categoria: (property as any).categoria ?? '',
+          type: property.type ?? '',
+          subtype: property.subtype ?? null,
+          city: property.city ?? '',
           neighborhood: property.neighborhood ?? '',
           address: property.address ?? '',
           development_id: property.development_id ?? undefined,
           broker_id: property.broker_id ?? undefined,
           unit: property.unit ?? '',
           builder: property.builder ?? '',
+          unit_number: (property as any).unit_number ?? '',
+          floor_number: (property as any).floor_number ?? '',
+          unit_final: (property as any).unit_final ?? '',
+          sun_position: (property as any).sun_position ?? undefined,
           area_m2: property.area_m2 ?? undefined,
           bedrooms: property.bedrooms ?? undefined,
           suites: property.suites ?? undefined,
@@ -93,12 +93,25 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
           })) ?? [],
         }
       : {
+          objetivo: '',
+          categoria: '',
+          type: '',
           commercial_status: 'disponivel',
           storage_unit: false,
           highlights: [],
           links: [],
         },
   })
+
+  const tipo = form.watch('type')
+  const developmentId = form.watch('development_id')
+  const situation = form.watch('situation')
+
+  const showDevelopmentSection = tipo ? typeRequiresDevelopment(tipo) : false
+  const showLocationSection = tipo ? !typeRequiresDevelopment(tipo) : false
+  const showComposition = tipo ? typeHasComposition(tipo) : false
+  const showCondoFee = tipo ? typeHasCondoFee(tipo) : false
+  const showDeliveryYear = situation === 'em_construcao'
 
   function onSubmit(values: PropertyFormValues) {
     startTransition(async () => {
@@ -123,116 +136,69 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
 
         {/* Classificação */}
         <Section title="Classificação">
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {PROPERTY_TYPES.map((t) => (
-                        <SelectItem key={t} value={t}>{PROPERTY_TYPE_LABELS[t]}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="subtype"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtipo</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Opcional" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {PROPERTY_SUBTYPES.map((t) => (
-                        <SelectItem key={t} value={t}>{PROPERTY_SUBTYPE_LABELS[t]}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <ClassificationCascade />
         </Section>
 
-        <Separator />
+        {/* Empreendimento (se tipo requer) */}
+        {showDevelopmentSection && (
+          <>
+            <Separator />
+            <Section title="Dados do Empreendimento">
+              <DevelopmentSection developments={developments} />
+            </Section>
+          </>
+        )}
 
-        {/* Localização */}
-        <Section title="Localização">
-          <div className="grid grid-cols-2 gap-4">
-            <TextField control={form.control} name="city" label="Cidade *" />
-            <TextField control={form.control} name="neighborhood" label="Bairro" />
-            <TextField control={form.control} name="address" label="Endereço" className="col-span-2" />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <FormField
-              control={form.control}
-              name="development_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Empreendimento</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
+        {/* Localização manual (se tipo NÃO requer empreendimento) */}
+        {showLocationSection && (
+          <>
+            <Separator />
+            <Section title="Dados da Localização">
+              <div className="grid grid-cols-2 gap-4">
+                <TextField control={form.control} name="city" label="Cidade *" />
+                <TextField control={form.control} name="neighborhood" label="Bairro *" />
+                <TextField control={form.control} name="address" label="Endereço *" className="col-span-2" />
+              </div>
+            </Section>
+          </>
+        )}
+
+        {/* Composição (se tipo aplica) */}
+        {showComposition && (
+          <>
+            <Separator />
+            <Section title="Composição">
+              <div className="grid grid-cols-4 gap-4">
+                <NumberField control={form.control} name="area_m2" label="Área (m²) *" />
+                <NumberField control={form.control} name="bedrooms" label="Quartos" />
+                <NumberField control={form.control} name="suites" label="Suítes" />
+                <NumberField control={form.control} name="parking_spots" label="Vagas" />
+              </div>
+              <FormField
+                control={form.control}
+                name="storage_unit"
+                render={({ field }) => (
+                  <FormItem className="flex items-center gap-2 mt-3">
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <SelectContent>
-                      {developments.map((d) => (
-                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <TextField control={form.control} name="builder" label="Construtora" />
-            <TextField control={form.control} name="unit" label="Unidade" />
-          </div>
-        </Section>
-
-        <Separator />
-
-        {/* Composição */}
-        <Section title="Composição">
-          <div className="grid grid-cols-4 gap-4">
-            <NumberField control={form.control} name="area_m2" label="Área (m²)" />
-            <NumberField control={form.control} name="bedrooms" label="Quartos" />
-            <NumberField control={form.control} name="suites" label="Suítes" />
-            <NumberField control={form.control} name="parking_spots" label="Vagas" />
-          </div>
-          <FormField
-            control={form.control}
-            name="storage_unit"
-            render={({ field }) => (
-              <FormItem className="flex items-center gap-2 mt-3">
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <FormLabel className="!mt-0 font-normal cursor-pointer">Escaninho</FormLabel>
-              </FormItem>
-            )}
-          />
-        </Section>
+                    <FormLabel className="!mt-0 font-normal cursor-pointer">Escaninho</FormLabel>
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </>
+        )}
 
         <Separator />
 
         {/* Valores */}
         <Section title="Valores">
           <div className="grid grid-cols-2 gap-4">
-            <NumberField control={form.control} name="price" label="Valor (R$)" />
-            <NumberField control={form.control} name="condo_fee" label="Condomínio (R$)" />
+            <NumberField control={form.control} name="price" label="Valor (R$) *" />
+            {showCondoFee && (
+              <NumberField control={form.control} name="condo_fee" label="Condomínio (R$)" />
+            )}
           </div>
         </Section>
 
@@ -241,15 +207,41 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
         {/* Dados do Imóvel */}
         <Section title="Dados do Imóvel">
           <div className="grid grid-cols-2 gap-4">
-            <SelectField control={form.control} name="commercial_status" label="Status Comercial"
-              options={COMMERCIAL_STATUSES.map((s) => ({ value: s, label: COMMERCIAL_STATUS_LABELS[s] }))} />
-            <SelectField control={form.control} name="state" label="Estado do Imóvel"
-              options={PROPERTY_STATES.map((s) => ({ value: s, label: PROPERTY_STATE_LABELS[s] }))} />
-            <SelectField control={form.control} name="situation" label="Situação do Imóvel"
-              options={PROPERTY_SITUATIONS.map((s) => ({ value: s, label: PROPERTY_SITUATION_LABELS[s] }))} />
-            <SelectField control={form.control} name="delivery_status" label="Status de Entrega"
-              options={DELIVERY_STATUSES.map((s) => ({ value: s, label: DELIVERY_STATUS_LABELS[s] }))} />
-            <NumberField control={form.control} name="delivery_year" label="Ano de Entrega" />
+            <SelectField
+              control={form.control}
+              name="commercial_status"
+              label="Status Comercial *"
+              options={COMMERCIAL_STATUSES.map((s) => ({ value: s, label: COMMERCIAL_STATUS_LABELS[s] }))}
+            />
+            <SelectField
+              control={form.control}
+              name="situation"
+              label="Situação"
+              options={[
+                { value: 'na_planta', label: 'Na Planta' },
+                { value: 'em_construcao', label: 'Em Construção' },
+                { value: 'pronto', label: 'Pronto' },
+              ]}
+            />
+            <SelectField
+              control={form.control}
+              name="state"
+              label="Estado do Imóvel"
+              options={[
+                { value: 'novo', label: 'Novo' },
+                { value: 'seminovo', label: 'Seminovo' },
+                { value: 'usado', label: 'Usado' },
+              ]}
+            />
+            <SelectField
+              control={form.control}
+              name="delivery_status"
+              label="Status de Entrega"
+              options={DELIVERY_STATUSES.map((s) => ({ value: s, label: DELIVERY_STATUS_LABELS[s] }))}
+            />
+            {showDeliveryYear && (
+              <NumberField control={form.control} name="delivery_year" label="Ano de Entrega *" />
+            )}
           </div>
         </Section>
 
@@ -263,9 +255,9 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
             render={({ field }) => (
               <FormItem className="max-w-xs">
                 <FormLabel>Captador</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value ?? undefined}>
+                <Select onValueChange={field.onChange} value={field.value ?? ''}>
                   <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Selecionar (opcional)" /></SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {brokers.map((b) => (
@@ -290,7 +282,7 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
               <FormItem>
                 <FormControl>
                   <Textarea
-                    placeholder="Descrição do imóvel..."
+                    placeholder="Descrição do imóvel (opcional)..."
                     className="min-h-24 resize-y"
                     {...field}
                     value={field.value ?? ''}
@@ -307,12 +299,7 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
           <Button type="submit" disabled={isPending}>
             {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Cadastrar imóvel'}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            disabled={isPending}
-          >
+          <Button type="button" variant="outline" onClick={() => router.back()} disabled={isPending}>
             Cancelar
           </Button>
         </div>
@@ -322,7 +309,7 @@ export function PropertyForm({ property, brokers, developments }: PropertyFormPr
 }
 
 // ============================================================
-// Sub-componentes auxiliares (reduzem repetição no form)
+// Sub-componentes auxiliares
 // ============================================================
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -391,7 +378,7 @@ function SelectField({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select onValueChange={field.onChange} value={field.value ?? ''}>
             <FormControl>
               <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
             </FormControl>

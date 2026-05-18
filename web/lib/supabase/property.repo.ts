@@ -38,13 +38,17 @@ export async function getProperties(
   if (filters.neighborhoods?.length)  query = query.in('neighborhood', filters.neighborhoods);
   if (filters.development_ids?.length) query = query.in('development_id', filters.development_ids);
   if (filters.broker_ids?.length)     query = query.in('broker_id', filters.broker_ids);
-  if (filters.types?.length)          query = query.in('type', filters.types);
-  if (filters.subtypes?.length)       query = query.in('subtype', filters.subtypes);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (filters.types?.length)          query = query.in('type', filters.types as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (filters.subtypes?.length)       query = query.in('subtype', filters.subtypes as any);
   if (filters.bedrooms?.length)       query = query.in('bedrooms', filters.bedrooms);
   if (filters.suites?.length)         query = query.in('suites', filters.suites);
   if (filters.parking_spots?.length)  query = query.in('parking_spots', filters.parking_spots);
-  if (filters.states?.length)         query = query.in('state', filters.states);
-  if (filters.situations?.length)     query = query.in('situation', filters.situations);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (filters.states?.length)         query = query.in('state', filters.states as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (filters.situations?.length)     query = query.in('situation', filters.situations as any);
   if (filters.commercial_statuses?.length) query = query.in('commercial_status', filters.commercial_statuses);
   if (filters.delivery_statuses?.length)   query = query.in('delivery_status', filters.delivery_statuses);
   if (filters.delivery_years?.length)      query = query.in('delivery_year', filters.delivery_years);
