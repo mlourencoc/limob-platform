@@ -60,6 +60,20 @@ export async function reorderConfigGroups(items: { id: string; display_order: nu
   }
 }
 
+export async function reorderConfigSubgroups(items: { id: string; display_order: number }[]): Promise<void> {
+  const supabase = await db()
+  for (const item of items) {
+    await supabase.from('config_subgroups').update({ display_order: item.display_order }).eq('id', item.id)
+  }
+}
+
+export async function reorderConfigFields(items: { id: string; display_order: number }[]): Promise<void> {
+  const supabase = await db()
+  for (const item of items) {
+    await supabase.from('config_fields').update({ display_order: item.display_order }).eq('id', item.id)
+  }
+}
+
 // ============================================================
 // SUBGROUPS
 // ============================================================

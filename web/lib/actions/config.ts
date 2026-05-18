@@ -2,8 +2,8 @@
 
 import {
   createConfigGroup, updateConfigGroup, deleteConfigGroups, reorderConfigGroups,
-  createConfigSubgroup, updateConfigSubgroup, deleteConfigSubgroups,
-  createConfigField, updateConfigField, deleteConfigFields,
+  createConfigSubgroup, updateConfigSubgroup, deleteConfigSubgroups, reorderConfigSubgroups,
+  createConfigField, updateConfigField, deleteConfigFields, reorderConfigFields,
   getAllConfig,
 } from '@/lib/supabase/config.repo'
 import type { ConfigGroup, ConfigSubgroup, ConfigField } from '@/types/domain'
@@ -40,6 +40,20 @@ export async function deleteGroupsAction(ids: string[]): Promise<Result> {
 export async function reorderGroupsAction(items: { id: string; display_order: number }[]): Promise<Result> {
   try {
     await reorderConfigGroups(items)
+    return { success: true }
+  } catch (e: any) { return { success: false, error: e.message } }
+}
+
+export async function reorderSubgroupsAction(items: { id: string; display_order: number }[]): Promise<Result> {
+  try {
+    await reorderConfigSubgroups(items)
+    return { success: true }
+  } catch (e: any) { return { success: false, error: e.message } }
+}
+
+export async function reorderFieldsAction(items: { id: string; display_order: number }[]): Promise<Result> {
+  try {
+    await reorderConfigFields(items)
     return { success: true }
   } catch (e: any) { return { success: false, error: e.message } }
 }
