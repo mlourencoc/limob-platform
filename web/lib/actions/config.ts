@@ -4,7 +4,9 @@ import {
   createConfigGroup, updateConfigGroup, deleteConfigGroups, reorderConfigGroups,
   createConfigSubgroup, updateConfigSubgroup, deleteConfigSubgroups,
   createConfigField, updateConfigField, deleteConfigFields,
+  getAllConfig,
 } from '@/lib/supabase/config.repo'
+import type { ConfigGroup, ConfigSubgroup, ConfigField } from '@/types/domain'
 
 type Result<T = void> = { success: true; data?: T } | { success: false; error: string }
 
@@ -94,4 +96,12 @@ export async function deleteFieldsAction(ids: string[]): Promise<Result> {
     await deleteConfigFields(ids)
     return { success: true }
   } catch (e: any) { return { success: false, error: e.message } }
+}
+
+// ============================================================
+// FETCH ALL (usado pelo client para refresh)
+// ============================================================
+
+export async function getConfigDataAction(): Promise<{ groups: ConfigGroup[]; subgroups: ConfigSubgroup[]; fields: ConfigField[] }> {
+  return getAllConfig()
 }

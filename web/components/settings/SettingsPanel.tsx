@@ -14,6 +14,7 @@ import {
   createGroupAction, updateGroupAction, deleteGroupsAction,
   createSubgroupAction, updateSubgroupAction, deleteSubgroupsAction,
   createFieldAction, updateFieldAction, deleteFieldsAction,
+  getConfigDataAction,
 } from '@/lib/actions/config'
 import type { ConfigGroup, ConfigSubgroup, ConfigField } from '@/types/domain'
 
@@ -679,12 +680,7 @@ export function SettingsPanel({ initialGroups, initialSubgroups, initialFields }
 
   async function refresh() {
     startRefresh(async () => {
-      const [{ getConfigGroups }, { getConfigSubgroups }, { getConfigFields }] = await Promise.all([
-        import('@/lib/supabase/config.repo'),
-        import('@/lib/supabase/config.repo'),
-        import('@/lib/supabase/config.repo'),
-      ])
-      const [g, s, f] = await Promise.all([getConfigGroups(), getConfigSubgroups(), getConfigFields()])
+      const { groups: g, subgroups: s, fields: f } = await getConfigDataAction()
       setGroups(g)
       setSubgroups(s)
       setFields(f)
