@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/setup-test-user.js)",
+      "Bash(cd C:\\\\\\\\Users\\\\\\\\malou\\\\\\\\limob-platform\\\\\\\\web)",
+      "Bash(find \"C:\\\\\\\\Users\\\\\\\\malou\\\\\\\\limob-platform\\\\\\\\web\" -name \"middleware.ts\" -o -name \"layout.tsx\")",
+      "Bash(find \"C:\\\\\\\\Users\\\\\\\\malou\\\\\\\\limob-platform\\\\\\\\web\\\\\\\\lib\\\\\\\\supabase\" -name \"client.ts\" -o -name \"client.tsx\")",
+      "Bash(cd \"C:\\\\\\\\Users\\\\\\\\malou\\\\\\\\limob-platform\\\\\\\\web\")",
+      "Bash(npm list *)",
+      "Bash(npm install *)"
+    ]
+  }
+}
