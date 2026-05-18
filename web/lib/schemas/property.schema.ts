@@ -25,10 +25,13 @@ export const propertyLinkSchema = z.object({
 
 // ============================================================
 // PROPERTY — criação e edição (v2 com cascata)
+// Nota: em Zod v4, .partial() não pode ser chamado em schemas
+// com .superRefine(). Por isso separamos o schema base do schema
+// com validações condicionais.
 // ============================================================
 
-export const propertySchema = z
-  .object({
+// Schema base sem superRefine — usado para gerar o updateSchema (.partial())
+const basePropertySchema = z.object({
     // Classificação (cascata)
     objetivo: z.string().min(1, 'Objetivo é obrigatório'),
     categoria: z.string().min(1, 'Categoria é obrigatória'),
@@ -84,7 +87,9 @@ export const propertySchema = z
     // Links externos
     links: z.array(propertyLinkSchema).default([]),
   })
-  .superRefine((data, ctx) => {
+
+// Schema completo com validações condicionais (cadastro)
+export const propertySchema = basePropertySchema.superRefine((data, ctx) => {
     // Validação: preço obrigatório
     if (!data.price) {
       ctx.addIssue({
@@ -138,7 +143,9 @@ export const propertySchema = z
 export type PropertyFormValues = z.infer<typeof propertySchema>
 
 // Schema para update — todos os campos opcionais
-export const propertyUpdateSchema = propertySchema.partial()
+// Usa basePropertySchema.partial() pois em Zod v4 .partial() não pode
+// ser chamado em schemas com .superRefine()
+export const propertyUpdateSchema = basePropertySchema.partial()
 
 // ============================================================
 // FILTROS
